@@ -1,26 +1,28 @@
+const { MailerSend, EmailParams, Sender, Recipient } = require('mailersend')
+
 const sendEmail = async ({ to, subject, text, html }) => {
   console.log(`[Email] Attempting to send to: ${to}`)
 
   try {
-    const SibApiV3Sdk = require('@getbrevo/brevo')
-    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi()
-    apiInstance.setApiKey(
-      SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey,
-      process.env.BREVO_API_KEY
-    )
+    const mailerSend = new MailerSend({
+      apiKey: process.env.MAILERSEND_API_KEY,
+    })
 
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail()
-    sendSmtpEmail.to = [{ email: to }]
-    sendSmtpEmail.sender = { name: 'PayWallet', email: 'wardaf586@gmail.com' }
-    sendSmtpEmail.subject = subject
-    sendSmtpEmail.textContent = text
-    sendSmtpEmail.htmlContent = html
+    const sentFrom = new Sender('wardaf586@gmail.com', 'PayWallet')
+    const recipients = [new Recipient(to)]
 
-    const result = await apiInstance.sendTransacEmail(sendSmtpEmail)
-    console.log(`[Email] BREVO SUCCESS: ${result.body.messageId}`)
+    const emailParams = new EmailParams()
+      .setFrom(sentFrom)
+      .setTo(recipients)
+      .setSubject(subject)
+      .setText(text)
+      .setHtml(html || text)
+
+    await mailerSend.email.send(emailParams)
+    console.log(`[Email] MAILERSEND SUCCESS: sent to ${to}`)
     return true
   } catch (err) {
-    console.error(`[Email] BREVO FAILED: ${err.message}`)
+    console.error(`[Email] MAILERSEND FAILED: ${err.message || JSON.stringify(err)}`)
     return false
   }
 }
