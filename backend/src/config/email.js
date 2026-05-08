@@ -1,7 +1,11 @@
 const nodemailer = require('nodemailer')
 
 const sendEmail = async ({ to, subject, text, html }) => {
-  console.log(`[Email] Attempting to send to: ${to}...`)
+  const smtpUser = process.env.SMTP_USER
+  const smtpPass = process.env.SMTP_PASS
+  console.log(`[Email] Attempting to send to: ${to}`)
+  console.log(`[Email] SMTP_USER: ${smtpUser}`)
+  console.log(`[Email] SMTP_PASS length: ${smtpPass ? smtpPass.length : 'MISSING'}`)
   
   // Create transporter dynamically to ensure latest .env values are used
   const transporter = nodemailer.createTransport({
@@ -9,8 +13,8 @@ const sendEmail = async ({ to, subject, text, html }) => {
     port: 587,
     secure: false,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: smtpUser,
+      pass: smtpPass,
     },
     tls: {
       rejectUnauthorized: false
@@ -19,7 +23,7 @@ const sendEmail = async ({ to, subject, text, html }) => {
 
   try {
     const info = await transporter.sendMail({
-      from: `"PayWallet" <${process.env.SMTP_USER}>`,
+      from: `"PayWallet" <${smtpUser}>`,
       to,
       subject,
       text,
@@ -28,7 +32,9 @@ const sendEmail = async ({ to, subject, text, html }) => {
     console.log(`[Email] SUCCESS: ${info.messageId}`)
     return true
   } catch (error) {
+    console.error(`[Email] FAILED CODE: ${error.code}`)
     console.error(`[Email] FAILED: ${error.message}`)
+    console.error(`[Email] FULL ERROR: ${JSON.stringify(error)}`)
     return false
   }
 }
