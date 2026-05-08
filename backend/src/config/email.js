@@ -1,40 +1,53 @@
-const nodemailer = require('nodemailer')
+const { Resend } = require('resend')
 
 const sendEmail = async ({ to, subject, text, html }) => {
-  const smtpUser = process.env.SMTP_USER
-  const smtpPass = process.env.SMTP_PASS
   console.log(`[Email] Attempting to send to: ${to}`)
-  console.log(`[Email] SMTP_USER: ${smtpUser}`)
-  console.log(`[Email] SMTP_PASS length: ${smtpPass ? smtpPass.length : 'MISSING'}`)
-  
-  // Create transporter dynamically to ensure latest .env values are used
+
+  // Use Resend if API key is available, otherwise fallback to nodemailer
+  if (process.env.RESEND_API_KEY) {
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    try {
+      const { data, error } = await resend.emails.send({
+        from: 'PayWallet <onboarding@resend.dev>',
+        to,
+        subject,
+        text,
+        html,
+      })
+      if (error) {
+        console.error(`[Email] RESEND FAILED: ${JSON.stringify(error)}`)
+        return false
+      }
+      console.log(`[Email] RESEND SUCCESS: ${data.id}`)
+      return true
+    } catch (err) {
+      console.error(`[Email] RESEND ERROR: ${err.message}`)
+      return false
+    }
+  }
+
+  // Fallback: nodemailer
+  const nodemailer = require('nodemailer')
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
     secure: false,
     auth: {
-      user: smtpUser,
-      pass: smtpPass,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
-    tls: {
-      rejectUnauthorized: false
-    }
+    tls: { rejectUnauthorized: false }
   })
 
   try {
     const info = await transporter.sendMail({
-      from: `"PayWallet" <${smtpUser}>`,
-      to,
-      subject,
-      text,
-      html,
+      from: `"PayWallet" <${process.env.SMTP_USER}>`,
+      to, subject, text, html,
     })
-    console.log(`[Email] SUCCESS: ${info.messageId}`)
+    console.log(`[Email] NODEMAILER SUCCESS: ${info.messageId}`)
     return true
   } catch (error) {
-    console.error(`[Email] FAILED CODE: ${error.code}`)
-    console.error(`[Email] FAILED: ${error.message}`)
-    console.error(`[Email] FULL ERROR: ${JSON.stringify(error)}`)
+    console.error(`[Email] NODEMAILER FAILED: ${error.message}`)
     return false
   }
 }
