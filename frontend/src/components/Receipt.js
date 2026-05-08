@@ -7,8 +7,7 @@ export default function Receipt({ transaction, onClose }) {
     window.print();
   };
 
-  const isSent = transaction.type === 'transfer' && transaction.senderId;
-  const isReceived = transaction.type === 'transfer' && !transaction.senderId;
+
   const isTopup = transaction.type === 'topup';
   const isWithdrawal = transaction.type === 'withdrawal';
 
