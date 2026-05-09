@@ -44,8 +44,10 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const rawEmail = req.body.email || req.body.Email || ''
-    const password = req.body.password || req.body.Password || ''
     const email = rawEmail.trim().toLowerCase()
+    const rawPassword = req.body.password || req.body.Password || ''
+    const password = rawPassword.trim() // Trim password to avoid accidental space issues
+
     const userRepo = AppDataSource.getRepository('User')
 
     // Find user
@@ -65,6 +67,7 @@ router.post('/login', async (req, res) => {
     console.log(`[Login] Match result: ${isMatch}`)
     
     if (!isMatch) {
+      console.log(`[Login] Password mismatch for: ${email}. Provided: "${password}", Stored Hash: ${user.password.substring(0, 10)}...`)
       return res.status(400).json({ message: 'Wrong password' })
     }
 
