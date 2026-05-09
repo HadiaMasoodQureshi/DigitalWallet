@@ -49,7 +49,12 @@ router.post('/login', async (req, res) => {
     const userRepo = AppDataSource.getRepository('User')
 
     // Find user
-    const user = await userRepo.findOne({ where: { email } })
+    // Find user using case-insensitive search
+    const user = await userRepo.findOne({ 
+      where: { 
+        email: require('typeorm').ILike(email) 
+      } 
+    })
     if (!user) {
       return res.status(400).json({ message: 'User not found' })
     }
@@ -93,7 +98,12 @@ router.post('/forgot-password', async (req, res) => {
     const { email } = req.body
     const userRepo = AppDataSource.getRepository('User')
 
-    const user = await userRepo.findOne({ where: { email } })
+    const trimmedEmail = email.trim().toLowerCase()
+    const user = await userRepo.findOne({ 
+      where: { 
+        email: require('typeorm').ILike(trimmedEmail) 
+      } 
+    })
     if (!user) {
       return res.status(404).json({ message: 'User with this email does not exist' })
     }
