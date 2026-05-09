@@ -1,41 +1,37 @@
 const sendEmail = async ({ to, subject, text, html }) => {
-  console.log(`[Email] Attempting to send to: ${to}`)
+  console.log(`[Email] Attempting to send to: ${to} via Google Script`)
 
   try {
-    const apiKey = process.env.ELASTIC_EMAIL_API_KEY
-    if (!apiKey) {
-      console.error('[Email] ELASTIC_EMAIL_API_KEY is missing')
+    const scriptUrl = process.env.GOOGLE_SCRIPT_URL
+    if (!scriptUrl) {
+      console.error('[Email] GOOGLE_SCRIPT_URL is missing')
       return false
     }
 
-    const response = await fetch('https://api.elasticemail.com/v2/email/send', {
+    const response = await fetch(scriptUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       },
-      body: new URLSearchParams({
-        apikey: apiKey,
-        subject: subject,
-        from: 'wardaf586@gmail.com',
-        fromName: 'PayWallet',
+      body: JSON.stringify({
         to: to,
-        bodyHtml: html || text,
-        bodyText: text,
-        isTransactional: true,
+        subject: subject,
+        text: text,
+        html: html || text,
       }),
     })
 
-    const result = await response.json()
-
-    if (result.success) {
-      console.log(`[Email] ELASTIC EMAIL SUCCESS: ${result.data.messageid}`)
+    const result = await response.text()
+    
+    if (result === 'Success') {
+      console.log(`[Email] GOOGLE SCRIPT SUCCESS: sent to ${to}`)
       return true
     } else {
-      console.error(`[Email] ELASTIC EMAIL FAILED: ${result.error}`)
+      console.error(`[Email] GOOGLE SCRIPT FAILED: ${result}`)
       return false
     }
   } catch (err) {
-    console.error(`[Email] ELASTIC EMAIL ERROR: ${err.message}`)
+    console.error(`[Email] GOOGLE SCRIPT ERROR: ${err.message}`)
     return false
   }
 }
