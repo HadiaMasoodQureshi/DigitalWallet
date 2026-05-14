@@ -18,7 +18,8 @@ export const loginUser = createAsyncThunk('auth/login', async (data, { rejectWit
     localStorage.setItem('token', res.data.token);
     return res.data;
   } catch (err) {
-    return rejectWithValue(err.response?.data?.message || 'Login failed');
+    const message = err.response?.data?.message || err.message || 'Login failed';
+    return rejectWithValue(message);
   }
 });
 

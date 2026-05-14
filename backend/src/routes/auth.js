@@ -42,6 +42,7 @@ router.post('/register', async (req, res) => {
 
 // Login
 router.post('/login', async (req, res) => {
+  console.log(`[Auth] Login attempt for: ${req.body.email || req.body.Email}`);
   try {
     const rawEmail = req.body.email || req.body.Email || ''
     const email = rawEmail.trim().toLowerCase()
