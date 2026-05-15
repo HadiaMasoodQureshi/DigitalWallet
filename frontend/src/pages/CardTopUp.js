@@ -107,6 +107,16 @@ export default function CardTopUp() {
                   </button>
                 ))}
               </div>
+              {amount === '2000' && (
+                <p style={{ color: '#f59e0b', fontSize: '11px', marginBottom: '10px' }}>
+                  ⚠️ Note: 2000 triggers "Do Not Honor" in Sandbox. Try 500 instead.
+                </p>
+              )}
+              {parseFloat(amount) > 3000 && (
+                <p style={{ color: '#ef4444', fontSize: '11px', marginBottom: '10px' }}>
+                  ⚠️ Note: Amounts > 3000 trigger "Processor Declined" in Sandbox.
+                </p>
+              )}
               <input
                 className="form-control"
                 type="number"

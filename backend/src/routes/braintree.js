@@ -36,10 +36,12 @@ router.post('/pay', authMiddleware, async (req, res) => {
     })
 
     if (!result.success) {
-      console.error('[Braintree Topup Error]', result.message)
+      // Extract specific processor response if available (e.g., "Do Not Honor")
+      const processorMsg = result.transaction?.processorResponseText || result.message || 'Transaction failed';
+      console.error('[Braintree Topup Error]', processorMsg)
       await queryRunner.rollbackTransaction()
       await queryRunner.release()
-      return res.status(400).json({ success: false, message: result.message })
+      return res.status(400).json({ success: false, message: `Braintree: ${processorMsg}` })
     }
 
     // 2. Credit user wallet
@@ -124,10 +126,11 @@ router.post('/pay-user', authMiddleware, async (req, res) => {
     })
 
     if (!result.success) {
-      console.error('[Braintree P2P Error]', result.message)
+      const processorMsg = result.transaction?.processorResponseText || result.message || 'Transaction failed';
+      console.error('[Braintree P2P Error]', processorMsg)
       await queryRunner.rollbackTransaction()
       await queryRunner.release()
-      return res.status(400).json({ success: false, message: result.message })
+      return res.status(400).json({ success: false, message: `Braintree: ${processorMsg}` })
     }
 
     // 2. Credit receiver wallet

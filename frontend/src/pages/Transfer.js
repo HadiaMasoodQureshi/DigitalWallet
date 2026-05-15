@@ -57,18 +57,26 @@ export default function Transfer() {
       if (!dropinInstance.current) return;
       try {
         const { nonce } = await dropinInstance.current.requestPaymentMethod();
+        
+        // Use a manual loading state for card payments if not using a thunk
+        dispatch({ type: 'transactions/send/pending' });
+        
         const res = await api.post('/braintree/pay-user', { 
           nonce, 
           amount: amountNum, 
           receiverEmail: form.receiverEmail,
           description: form.description
         });
+        
         if (res.data.success) {
           dispatch({ type: 'transactions/send/fulfilled', payload: res.data });
+        } else {
+          throw new Error(res.data.message || 'Payment failed');
         }
       } catch (err) {
         setDropinKey(prev => prev + 1); // Reset DropIn on error
-        dispatch({ type: 'transactions/send/rejected', payload: err.response?.data?.message || 'Payment failed' });
+        const msg = err.response?.data?.message || err.message || 'Payment failed';
+        dispatch({ type: 'transactions/send/rejected', payload: msg });
       }
     }
   };
