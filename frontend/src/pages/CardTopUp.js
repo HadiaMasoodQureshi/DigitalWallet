@@ -177,8 +177,8 @@ export default function CardTopUp() {
               </p>
               {[
                 { label: '✅ Success',   card: '4111 1111 1111 1111' },
-                { label: '❌ Declined',  card: '4000 0000 0000 0002' },
                 { label: '🔐 3D Secure', card: '4000 0027 6000 3184' },
+                { label: '❌ Declined',  card: '4000 0000 0000 0002' },
               ].map(({ label, card }) => (
                 <div key={card} style={{
                   display: 'flex', justifyContent: 'space-between',
