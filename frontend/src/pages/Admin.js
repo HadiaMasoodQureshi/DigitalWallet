@@ -82,6 +82,7 @@ export default function Admin() {
   const [txPage, setTxPage] = useState(1);
   const [txType, setTxType] = useState('');
   const [txStatus, setTxStatus] = useState('');
+  const [txSearch, setTxSearch] = useState('');
   const [txTotalPages, setTxTotalPages] = useState(1);
 
   useEffect(() => {
@@ -96,10 +97,10 @@ export default function Admin() {
   }, [userPage, userSearch]);
 
   const loadTxs = useCallback(() => {
-    api.get('/admin/transactions', { params: { page: txPage, limit: 10, type: txType, status: txStatus } })
+    api.get('/admin/transactions', { params: { page: txPage, limit: 10, type: txType, status: txStatus, search: txSearch } })
       .then(r => { setTxs(r.data.transactions); setTxTotal(r.data.total); setTxTotalPages(r.data.totalPages); })
       .catch(() => {});
-  }, [txPage, txType, txStatus]);
+  }, [txPage, txType, txStatus, txSearch]);
 
   useEffect(() => { if (tab === 'users') loadUsers(); }, [tab, loadUsers]);
   useEffect(() => { if (tab === 'transactions') loadTxs(); }, [tab, loadTxs]);
@@ -294,16 +295,26 @@ export default function Admin() {
         {tab === 'transactions' && (
           <>
             <div className="filters-bar">
-              <select id="admin-tx-type" className="form-control" value={txType} onChange={(e) => { setTxType(e.target.value); setTxPage(1); }}>
+              <input 
+                id="admin-tx-search" 
+                className="form-control" 
+                placeholder="🔍 Search Ref, Desc, or Email..." 
+                value={txSearch} 
+                onChange={(e) => { setTxSearch(e.target.value); setTxPage(1); }} 
+                style={{ flex: 2 }}
+              />
+              <select id="admin-tx-type" className="form-control" value={txType} onChange={(e) => { setTxType(e.target.value); setTxPage(1); }} style={{ flex: 1 }}>
                 <option value="">All Types</option>
                 <option value="topup">Top-up</option>
                 <option value="transfer">Transfer</option>
+                <option value="withdraw">Withdraw</option>
+                <option value="adjustment">Adjustment</option>
               </select>
-              <select id="admin-tx-status" className="form-control" value={txStatus} onChange={(e) => { setTxStatus(e.target.value); setTxPage(1); }}>
+              <select id="admin-tx-status" className="form-control" value={txStatus} onChange={(e) => { setTxStatus(e.target.value); setTxPage(1); }} style={{ flex: 1 }}>
                 <option value="">All Status</option>
-                <option value="success">Success</option>
-                <option value="failed">Failed</option>
-                <option value="pending">Pending</option>
+                <option value="success">✅ Success</option>
+                <option value="failed">❌ Failed</option>
+                <option value="pending">⏳ Pending</option>
               </select>
             </div>
             <div className="table-wrapper">

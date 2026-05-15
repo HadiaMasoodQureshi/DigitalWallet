@@ -44,14 +44,20 @@ router.get('/users', authMiddleware, adminOnly, async (req, res) => {
 // GET /api/admin/transactions - all transactions with search, filter, sort, pagination
 router.get('/transactions', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const { page = 1, limit = 10, type, status, sortBy = 'createdAt', order = 'DESC' } = req.query
+    const { page = 1, limit = 10, type, status, search, sortBy = 'createdAt', order = 'DESC' } = req.query
     const txRepo = AppDataSource.getRepository('Transaction')
     const skip = (parseInt(page) - 1) * parseInt(limit)
 
     const qb = txRepo.createQueryBuilder('tx')
+      .leftJoinAndSelect('User', 'sender', 'tx.senderId = sender.id')
+      .leftJoinAndSelect('User', 'receiver', 'tx.receiverId = receiver.id')
 
     if (type) qb.where('tx.type = :type', { type })
     if (status) qb.andWhere('tx.status = :status', { status })
+    
+    if (search) {
+      qb.andWhere('(tx.description ILIKE :s OR tx.paymentRef ILIKE :s OR sender.email ILIKE :s OR receiver.email ILIKE :s)', { s: `%${search}%` })
+    }
 
     const allowedSort = ['createdAt', 'amount', 'id']
     const sortField = allowedSort.includes(sortBy) ? sortBy : 'createdAt'
