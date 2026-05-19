@@ -157,12 +157,29 @@ export default function Admin() {
         {/* Stats Tab */}
         {tab === 'stats' && stats && (
           <div className="grid-4">
-            <div className="stat-card">
+            <div 
+              className="stat-card" 
+              style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+              onClick={() => setTab('users')}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.1)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+            >
               <div className="stat-icon" style={{ background: 'var(--accent-light)' }}>👥</div>
               <p className="stat-label">Total Users</p>
               <p className="stat-value">{stats.totalUsers}</p>
             </div>
-            <div className="stat-card">
+            <div 
+              className="stat-card" 
+              style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+              onClick={() => {
+                setTab('transactions');
+                setTxStatus('');
+                setTxType('');
+                setTxPage(1);
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.1)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+            >
               <div className="stat-icon" style={{ background: 'var(--success-light)' }}>💳</div>
               <p className="stat-label">Total Transactions</p>
               <p className="stat-value">{stats.totalTransactions}</p>
@@ -172,7 +189,18 @@ export default function Admin() {
               <p className="stat-label">Total Volume</p>
               <p className="stat-value" style={{ fontSize: '20px' }}>PKR {parseFloat(stats.totalVolume).toLocaleString()}</p>
             </div>
-            <div className="stat-card">
+            <div 
+              className="stat-card" 
+              style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+              onClick={() => {
+                setTab('transactions');
+                setTxStatus('failed');
+                setTxType('');
+                setTxPage(1);
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.1)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+            >
               <div className="stat-icon" style={{ background: 'var(--danger-light)' }}>❌</div>
               <p className="stat-label">Failed Transactions</p>
               <p className="stat-value" style={{ color: 'var(--danger)' }}>{stats.failedTransactions}</p>
