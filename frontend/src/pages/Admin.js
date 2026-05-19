@@ -44,7 +44,27 @@ const txColumns = (onRefund) => [
     header: 'Amount', accessorKey: 'amount',
     cell: (i) => <span style={{ fontWeight: 700, color: 'var(--accent)' }}>PKR {parseFloat(i.getValue()).toLocaleString()}</span>
   },
-  { header: 'Status', accessorKey: 'status', cell: (i) => <span className={`badge ${i.getValue() === 'success' ? 'badge-success' : 'badge-danger'}`}>{i.getValue()}</span> },
+  {
+    header: 'Status',
+    accessorKey: 'status',
+    cell: (i) => {
+      const isFailed = i.getValue() === 'failed';
+      return (
+        <span 
+          className={`badge ${i.getValue() === 'success' ? 'badge-success' : 'badge-danger'}`}
+          style={isFailed ? { cursor: 'pointer', textDecoration: 'underline' } : {}}
+          onClick={() => {
+            if (isFailed) {
+              alert(`❌ Transaction Failed!\n\nReason: ${i.row.original.description || 'System Error/Network Timeout'}`);
+            }
+          }}
+          title={isFailed ? "Click to view failure reason" : ""}
+        >
+          {i.getValue()}
+        </span>
+      );
+    }
+  },
   {
     header: 'Actions',
     cell: (i) => (

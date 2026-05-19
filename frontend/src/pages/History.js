@@ -50,7 +50,21 @@ const columns = (userId, onOpenReceipt) => [
     cell: (info) => {
       const s = info.getValue();
       const cls = s === 'success' ? 'badge-success' : s === 'pending' ? 'badge-warning' : 'badge-danger';
-      return <span className={`badge ${cls}`}>{s === 'success' ? '✓ Success' : s === 'pending' ? '⏳ Pending' : '✗ Failed'}</span>;
+      const isFailed = s === 'failed';
+      return (
+        <span 
+          className={`badge ${cls}`}
+          style={isFailed ? { cursor: 'pointer', textDecoration: 'underline' } : {}}
+          onClick={() => {
+            if (isFailed) {
+              alert(`❌ Transaction Failed!\n\nReason: ${info.row.original.description || 'System Error/Network Timeout'}`);
+            }
+          }}
+          title={isFailed ? "Click to view failure reason" : ""}
+        >
+          {s === 'success' ? '✓ Success' : s === 'pending' ? '⏳ Pending' : '✗ Failed'}
+        </span>
+      );
     },
   },
   {
